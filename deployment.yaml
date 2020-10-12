@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api-sidecar
+  name: api-adapter
   labels:
-    app: api-sidecar
+    app: api-adapter
   namespace: default
 spec:
   replicas: 1
@@ -11,11 +11,11 @@ spec:
     type: Recreate
   selector:
     matchLabels:
-      app: api-sidecar
+      app: api-adapter
   template:
     metadata:
       labels:
-        app: api-sidecar
+        app: api-adapter
     spec:
       containers:
       - name: front
@@ -23,7 +23,7 @@ spec:
         ports:
         - containerPort: 80
         volumeMounts:
-        - mountPath: /etc/nginx/conf.d/ # mount nginx-conf volumn to /etc/nginx
+        - mountPath: /etc/nginx/conf.d/ 
           readOnly: false
           name: front-conf
         - mountPath: /var/log/nginx
@@ -33,7 +33,7 @@ spec:
         ports:
         - containerPort: 8080
         volumeMounts:
-        - mountPath: /etc/nginx/conf.d/ # mount nginx-conf volumn to /etc/nginx
+        - mountPath: /etc/nginx/conf.d/ 
           readOnly: false
           name: back-conf
         - mountPath: /var/log/nginx 
@@ -41,13 +41,13 @@ spec:
       volumes:
       - name: front-conf
         configMap:
-          name: api-sidecar # place ConfigMap `nginx-conf` on /etc/nginx
+          name: api-adapter 
           items:
             - key: front.default.conf
               path: default.conf
       - name: back-conf
         configMap:
-          name: api-sidecar # place ConfigMap `nginx-conf` on /etc/nginx
+          name: api-adapter 
           items:
             - key: back.default.conf
               path: default.conf
