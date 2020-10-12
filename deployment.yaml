@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-sidecar
+  labels:
+    app: api-sidecar
+  namespace: default
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: api-sidecar
+  template:
+    metadata:
+      labels:
+        app: api-sidecar
+    spec:
+      containers:
+      - name: front
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /etc/nginx/conf.d/ # mount nginx-conf volumn to /etc/nginx
+          readOnly: false
+          name: front-conf
+        - mountPath: /var/log/nginx
+          name: front-log
+      - name: back
+        image: nginx
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - mountPath: /etc/nginx/conf.d/ # mount nginx-conf volumn to /etc/nginx
+          readOnly: false
+          name: back-conf
+        - mountPath: /var/log/nginx 
+          name: back-log       
+      volumes:
+      - name: front-conf
+        configMap:
+          name: api-sidecar # place ConfigMap `nginx-conf` on /etc/nginx
+          items:
+            - key: front.default.conf
+              path: default.conf
+      - name: back-conf
+        configMap:
+          name: api-sidecar # place ConfigMap `nginx-conf` on /etc/nginx
+          items:
+            - key: back.default.conf
+              path: default.conf
+      - name: back-log
+        emptyDir: {}
+      - name: front-log
+        emptyDir: {}
