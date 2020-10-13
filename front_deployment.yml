@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-adapter-front
+  labels:
+    app: api-adapter-front
+  namespace: default
+spec:
+  replicas: 3
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: api-adapter-front
+  template:
+    metadata:
+      labels:
+        app: api-adapter-front
+    spec:
+      containers:
+        - name: api-adapter-front
+          image: nginx
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: /etc/nginx/conf.d/ 
+              readOnly: false
+              name: front-conf
+            - mountPath: /var/log/nginx
+              name: front-log
+      volumes:
+      - name: front-conf
+        configMap:
+          name: api-adapter 
+          items:
+            - key: front.default.conf
+              path: default.conf
+      - name: front-log
+        emptyDir: {}

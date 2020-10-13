@@ -1,37 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api-adapter
+  name: api-adapter-back
   labels:
-    app: api-adapter
+    app: api-adapter-back
   namespace: default
 spec:
-  replicas: 1
+  replicas: 3
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: api-adapter
+      app: api-adapter-back
   template:
     metadata:
       labels:
-        app: api-adapter
+        app: api-adapter-back
     spec:
       containers:
-      - name: front
+      - name: api-adapter-back
         image: nginx
         ports:
         - containerPort: 80
-        volumeMounts:
-        - mountPath: /etc/nginx/conf.d/ 
-          readOnly: false
-          name: front-conf
-        - mountPath: /var/log/nginx
-          name: front-log
-      - name: back
-        image: nginx
-        ports:
-        - containerPort: 8080
         volumeMounts:
         - mountPath: /etc/nginx/conf.d/ 
           readOnly: false
@@ -39,12 +29,6 @@ spec:
         - mountPath: /var/log/nginx 
           name: back-log       
       volumes:
-      - name: front-conf
-        configMap:
-          name: api-adapter 
-          items:
-            - key: front.default.conf
-              path: default.conf
       - name: back-conf
         configMap:
           name: api-adapter 
@@ -52,6 +36,4 @@ spec:
             - key: back.default.conf
               path: default.conf
       - name: back-log
-        emptyDir: {}
-      - name: front-log
         emptyDir: {}

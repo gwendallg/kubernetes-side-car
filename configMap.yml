@@ -15,7 +15,7 @@ data:
     proxy_set_header X-Correlation-ID $pid-$msec-$request_length;
       
     upstream back {
-      server 127.0.0.1:8080;
+      server api-adapter-back.default.svc.cluster.local:80;
     }
 
     server {
@@ -41,7 +41,7 @@ data:
       add_header X-Test test;
       access_log  /var/log/nginx/access.log;
       error_log debug;
-      listen 8080 ;
+      listen 80;
 
       add_header X-Correlation-ID $http_x_correlation_id;
  
